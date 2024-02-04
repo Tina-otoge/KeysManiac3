@@ -5,6 +5,7 @@ from pathlib import Path
 from pyglet.graphics import Batch
 
 import strings
+from game.grid import Grid
 
 
 class Scene:
@@ -14,6 +15,7 @@ class Scene:
         self.game = game
         self.objects = []
         self.batch = Batch()
+        self.grid = Grid(self.game.window, 100, 100, batch=self.batch)
         self.start()
         for obj in self.objects:
             obj.batch = self.batch
@@ -53,3 +55,6 @@ class Scene:
         self.batch.draw()
         for obj in self.objects:
             obj.draw()
+
+    def on_resize(self):
+        self.grid.update()

@@ -7,8 +7,9 @@ from game.scenes import Scene
 class Game:
     def __init__(self):
         print("Game created")
-        self.window = Window()
+        self.window = Window(resizable=True)
         self.window.event(self.on_draw)
+        self.window.event(self.on_resize)
         self.scene = None
         Scene.prepare()
         pyglet.resource.path = ["game/resources"]
@@ -33,3 +34,8 @@ class Game:
         if not self.scene:
             return
         self.scene._update(dt)
+
+    def on_resize(self, width, height):
+        if not self.scene:
+            return
+        self.scene.on_resize()
