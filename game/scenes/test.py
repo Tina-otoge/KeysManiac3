@@ -1,3 +1,4 @@
+import random
 import time
 
 import pyglet
@@ -21,12 +22,58 @@ class Cookie(Sprite):
         super().__init__(img=image, x=x, y=y, **kwargs)
         self.rotation = 45
         self.velocity = 10
+        self.particles = []
 
     def update(self, dt):
         self.rotation += self.velocity * dt
         if self.velocity > 10:
             self.velocity -= 200 * dt
         self.velocity = max(10, self.velocity)
+
+        for particle in self.particles:
+            particle.update(dt)
+
+    def draw(self):
+        super().draw()
+        for particle in self.particles:
+            if not particle.alive:
+                self.particles.remove(particle)
+                del particle
+                continue
+
+            particle.draw()
+
+    def spawn_particles(self):
+        for _ in range(10):
+            particle = Particle(self.x, self.y)
+            self.particles.append(particle)
+
+
+class Particle(Sprite):
+    def __init__(self, x, y):
+        width, height = 5, 5
+        color = (*colors.WHITE, 255)
+        image = SolidColorImagePattern(color).create_image(width, height)
+        image.anchor_x = width // 2
+        image.anchor_y = height // 2
+        super().__init__(img=image, x=x, y=y)
+        self.dx = random.uniform(-50, 50)
+        self.dy = random.uniform(50, 150)
+        self.birth = time.time()
+
+    def update(self, dt):
+        self.x += self.dx * dt
+        self.y += self.dy * dt
+        self.dy -= 100 * dt
+        self.opacity = 255 * (1 - self.age / 3)
+
+    @property
+    def age(self):
+        return time.time() - self.birth
+
+    @property
+    def alive(self):
+        return self.age < 3
 
 
 class TestScene(Scene):
@@ -50,4 +97,5 @@ class TestScene(Scene):
             self.last_gong = now
             self.gong.play()
             self.cookie.velocity = 100
+            self.cookie.spawn_particles()
         self.cookie.update(self.dt)
