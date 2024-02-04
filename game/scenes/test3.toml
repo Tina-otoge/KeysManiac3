@@ -1,0 +1,8 @@
+[[objects]]
+type = "rectangle"
+color = "white"
+name = "test"
+x = 100
+y = 300
+w = 300
+h = 200
