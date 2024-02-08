@@ -1,3 +1,4 @@
+import random
 import time
 from dataclasses import dataclass
 
@@ -42,46 +43,44 @@ class Cookie(Sprite):
     def play(self):
         self.gong.play()
         self.velocity = 100
-        self.particles.append(Particle.create(self.x, self.y))
+        self.spawn_particles()
+
+    def draw(self):
+        super().draw()
+        for particle in self.particles:
+            particle.draw()
+
+    def spawn_particles(self):
+        for _ in range(10):
+            particle = Particle(self.x, self.y)
+            self.particles.append(particle)
 
 
 class Particle(Sprite):
-    def __init__(
-        self, x, y, dx, dy, width, height, velocity, lifetime, **kwargs
-    ):
-        color = kwargs.get("color", colors.PINK)
-        if len(color) == 3:
-            color = (*color, 255)
+    def __init__(self, x, y):
+        width, height = 5, 5
+        color = (*colors.WHITE, 255)
         image = SolidColorImagePattern(color).create_image(width, height)
         image.anchor_x = width // 2
         image.anchor_y = height // 2
-        print(
-            f"{x=}, {y=}, {dx=}, {dy=}, {width=}, {height=}, {velocity=}, {lifetime=}"
-        )
-        super().__init__(img=image, x=x, y=y, **kwargs)
-        self.anchor_x = width // 2
-        self.anchor_y = height // 2
-        self.x = x
-        self.y = y
-        self.dx = dx
-        self.dy = dy
-        self.velocity = velocity
-        self.lifetime = lifetime
-        self.age = 0
+        super().__init__(img=image, x=x, y=y)
+        self.dx = random.uniform(-50, 50)
+        self.dy = random.uniform(50, 150)
         self.birth = time.time()
 
-    @classmethod
-    def create(cls, x, y):
-        return cls(x, y, 1, 1, 10, 10, 100, 0.5)
-
     def update(self, dt):
-        self.age = time.time() - self.birth
-        self.x += self.velocity * dt * self.dx
-        self.y += self.velocity * dt * self.dy
+        self.x += self.dx * dt
+        self.y += self.dy * dt
+        self.dy -= 100 * dt
+        self.opacity = 255 * (1 - self.age / 3)
+
+    @property
+    def age(self):
+        return time.time() - self.birth
 
     @property
     def alive(self):
-        return self.age < self.lifetime
+        return self.age < 3
 
 
 class TestScene(Scene):
