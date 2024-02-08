@@ -53,3 +53,9 @@ class Scene:
         self.batch.draw()
         for obj in self.objects:
             obj.draw()
+
+    def handle_input(self, event):
+        pass
+
+    def handle_raw_input(self, event):
+        pass
